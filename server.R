@@ -7,29 +7,31 @@ library(scales)
 server <- function(input, output) {
   source("functions.R", local = TRUE)
   
-  ## Define event for input button
+  # Get current date
+  cur.date = Sys.Date()
+  
+  # Define event for input button: clicking will download the stock price data
   observeEvent(input$button, {
-    # Download the stock data
     symbol = input$symbol
     data = NULL
-    ## Use try statement in case symbol is invalid
+        # Use try statement in case symbol is invalid
         try({
         data = getSymbols(symbol, from = '2019-01-01',
                       to = input$date[2], warnings = FALSE,
                       auto.assign = FALSE)
     })
     
-    ## Check that data was downloaded
+    # Check that data was downloaded
     if(!is.null(data)){
         y.name = paste(symbol, 'Close', sep = '.')
         data.df <- convert.to.dataframe(data)
-            agg.data <- aggregate.data(data.df, y.name, agg.by = 'month')
-              ## Choose the number of steps ahead to forecast; by default is end of plot range
-              h.step = max(elapsed_months(input$date[2], cur.date),1)
-                fc <- forecast.data(agg.data, y.name, h.step = h.step, agg.by = 'month')
+        agg.data <- aggregate.data(data.df, y.name, agg.by = 'month')
+        # Choose the number of months ahead to forecast, h.step as the end of the plot range
+        h.step = max(elapsed_months(input$date[2], cur.date),1)
+        fc <- forecast.data(agg.data, y.name, h.step = h.step, agg.by = 'month')
 
-    ## Create lineplot
-    output$lineplot <- renderPlot({
+      #Create lineplot of time-series stock data and forecast (if selected)
+      output$lineplot <- renderPlot({
       if(input$forecast){
         ylims = c(max(0, min(fc$lw2, agg.data$x)), max(agg.data$x, fc$up2))
         ggplot(data = fc) + 

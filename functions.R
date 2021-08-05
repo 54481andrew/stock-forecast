@@ -1,4 +1,6 @@
-## Get number of elapsed months between two dates
+# *** Helper functions *** 
+
+# Calculate number of elapsed months between two dates
 elapsed_months <- function(end_date, start_date) {
   ed <- as.POSIXlt(end_date)
   sd <- as.POSIXlt(start_date)
@@ -19,7 +21,10 @@ convert.to.dataframe <- function(data){
 }
 
 
-## Function to aggregate data 
+## Function to aggregate data. 
+## - y.name: new column name given to aggregated data
+## - agg.by: time over which aggregation occurs. 'month' is currently the 
+## only option.
 aggregate.data <- function(data.df, y.name, agg.by = 'month'){
   ## Aggregate dataset
   if(agg.by=='month'){
@@ -29,7 +34,7 @@ aggregate.data <- function(data.df, y.name, agg.by = 'month'){
                                       paste(year, month, '15', sep = '-')))
   }
   ## Rename default aggregation column
-  agg.data[,y.name] = agg.data$x
+  agg.data[, y.name] = agg.data$x
   return(agg.data)
 }
 
@@ -56,6 +61,7 @@ forecast.data <- function(agg.data, y.name, h.step = 3, agg.by = 'month'){
   fc$up1 = fc[,'Hi 80']
   fc$lw2 = fc[,'Lo 95']
   fc$up2 = fc[,'Hi 95']
+  print(fc)
   return(fc)
 }
 
